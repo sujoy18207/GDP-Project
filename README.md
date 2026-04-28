@@ -117,12 +117,19 @@ Vite proxies `/api/*` to the FastAPI backend on port 8000, so just open
 
 ## GCP deployment
 
-The cleanest GCP setup is two Cloud Run services behind the same frontend origin:
+The repo includes a Cloud Build pipeline that deploys two Cloud Run services behind the same frontend origin:
 
-1. Build and deploy the backend container from [backend/Dockerfile](backend/Dockerfile) as a Cloud Run service.
-2. Build and deploy the frontend container from [frontend/Dockerfile](frontend/Dockerfile) as a second Cloud Run service.
-3. Set the frontend service environment variable `BACKEND_UPSTREAM` to the backend service URL, for example `https://fairaudit-backend-xxxxx.a.run.app`.
-4. Keep the frontend service public. The browser hits the frontend origin, and nginx proxies `/api/*` to the backend service.
+1. `backend` runs the FastAPI API from [backend/Dockerfile](backend/Dockerfile).
+2. `frontend` serves the React app from [frontend/Dockerfile](frontend/Dockerfile) and proxies `/api/*` to the backend service URL.
+3. Cloud Build pushes both images to Artifact Registry, deploys the backend first, reads its Cloud Run URL, then deploys the frontend with `BACKEND_UPSTREAM` set automatically.
+
+Typical rollout command:
+
+```bash
+gcloud builds submit --config cloudbuild.yaml .
+```
+
+Before you run it, create an Artifact Registry Docker repo in your chosen region and enable Cloud Build + Cloud Run APIs. The default region and service names live in [cloudbuild.yaml](cloudbuild.yaml) and can be overridden with substitutions.
 
 If you prefer one command for local verification, use `docker compose up --build` from the repo root. The compose file mirrors the same proxy setup used in Cloud Run.
 

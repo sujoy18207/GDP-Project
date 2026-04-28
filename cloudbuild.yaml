@@ -1,0 +1,73 @@
+substitutions:
+  _REGION: us-central1
+  _AR_REPO: fairaudit
+  _BACKEND_SERVICE: fairaudit-backend
+  _FRONTEND_SERVICE: fairaudit-frontend
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    id: build-backend
+    args:
+      - build
+      - -t
+      - $_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/backend:$SHORT_SHA
+      - -f
+      - backend/Dockerfile
+      - backend
+
+  - name: gcr.io/cloud-builders/docker
+    id: push-backend
+    args:
+      - push
+      - $_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/backend:$SHORT_SHA
+
+  - name: gcr.io/cloud-builders/docker
+    id: build-frontend
+    args:
+      - build
+      - -t
+      - $_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/frontend:$SHORT_SHA
+      - -f
+      - frontend/Dockerfile
+      - frontend
+
+  - name: gcr.io/cloud-builders/docker
+    id: push-frontend
+    args:
+      - push
+      - $_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/frontend:$SHORT_SHA
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    id: deploy-cloud-run
+    entrypoint: bash
+    args:
+      - -exc
+      - |
+        gcloud run deploy "$_BACKEND_SERVICE" \
+          --image "$_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/backend:$SHORT_SHA" \
+          --region "$_REGION" \
+          --platform managed \
+          --allow-unauthenticated \
+          --port 8000 \
+          --cpu 1 \
+          --memory 1Gi \
+          --set-env-vars FAIRAUDIT_HOST=0.0.0.0,FAIRAUDIT_PORT=8000,FAIRAUDIT_RELOAD=0
+
+        BACKEND_URL="$(gcloud run services describe "$_BACKEND_SERVICE" --region "$_REGION" --platform managed --format='value(status.url)')"
+
+        gcloud run deploy "$_FRONTEND_SERVICE" \
+          --image "$_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/frontend:$SHORT_SHA" \
+          --region "$_REGION" \
+          --platform managed \
+          --allow-unauthenticated \
+          --port 80 \
+          --cpu 1 \
+          --memory 512Mi \
+          --set-env-vars BACKEND_UPSTREAM="$BACKEND_URL"
+
+images:
+  - $_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/backend:$SHORT_SHA
+  - $_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/frontend:$SHORT_SHA
