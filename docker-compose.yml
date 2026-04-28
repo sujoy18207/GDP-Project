@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    environment:
+      FAIRAUDIT_CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
+      FAIRAUDIT_HOST: 0.0.0.0
+      FAIRAUDIT_PORT: 8000
+      FAIRAUDIT_RELOAD: 0
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    depends_on:
+      - backend
+    environment:
+      BACKEND_UPSTREAM: http://backend:8000
+    ports:
+      - "8080:80"
