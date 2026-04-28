@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+      Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-xl border border-ink-200 shadow-card;
+  }
+  .card-pad {
+    @apply card p-5;
+  }
+  .h-section {
+    @apply text-lg font-semibold text-ink-900 mb-3;
+  }
+  .label {
+    @apply block text-xs font-medium uppercase tracking-wide text-ink-500 mb-1;
+  }
+  .input {
+    @apply block w-full rounded-md border border-ink-300 bg-white px-3 py-2 text-sm
+      text-ink-900 placeholder:text-ink-400 shadow-sm focus:border-brand-500 focus:outline-none
+      focus:ring-2 focus:ring-brand-200;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-sm
+      font-medium transition disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+  }
+  .btn-ghost {
+    @apply btn text-ink-700 hover:bg-ink-100;
+  }
+  .btn-outline {
+    @apply btn border border-ink-300 bg-white text-ink-800 hover:bg-ink-50;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  .pill-pass {
+    @apply pill bg-green-50 text-ok ring-1 ring-inset ring-green-200;
+  }
+  .pill-warn {
+    @apply pill bg-amber-50 text-warn ring-1 ring-inset ring-amber-200;
+  }
+  .pill-fail {
+    @apply pill bg-red-50 text-bad ring-1 ring-inset ring-red-200;
+  }
+  .severity-critical {
+    @apply text-bad bg-red-50 ring-red-200;
+  }
+  .severity-warning {
+    @apply text-warn bg-amber-50 ring-amber-200;
+  }
+  .severity-info {
+    @apply text-ink-700 bg-ink-100 ring-ink-200;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.35);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 116, 139, 0.6);
+}

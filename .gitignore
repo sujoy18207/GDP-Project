@@ -1,0 +1,13 @@
+.venv/
+venv/
+__pycache__/
+node_modules/
+dist/
+.vite/
+*.log
+.DS_Store
+.idea/
+.vscode/
+backend/uploads/
+reports/*.json
+data/samples_manifest.json
